@@ -1,0 +1,9 @@
+[Unit]
+Description=Turn on VPN
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/myvpn
+
+[Install]
+WantedBy=multi-user.target

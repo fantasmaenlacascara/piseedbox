@@ -1,0 +1,188 @@
+---
+- hosts: hosts
+  remote_user: pi
+  become: True
+  become_user: root
+  tasks:
+    - name: update cache
+      apt:
+        update_cache: yes
+
+    - name: copy libtorrent deb
+      copy:
+        src: files/libtorrent-rasterbar7_0.16.18-1_armhf.deb
+        dest: /tmp/
+
+    - name: install deb
+      apt:
+        deb: /tmp/libtorrent-rasterbar7_0.16.18-1_armhf.deb
+
+    - name: install openvpn
+      apt:
+        name: openvpn
+        state: present
+      tags: vpn
+
+    - name: install python
+      apt:
+        name: python
+        state: present
+
+    - name: install python-twisted
+      apt:
+        name: python-twisted
+        state: present
+  
+    - name: install python-twisted-web
+      apt:
+        name: python-twisted-web
+        state: present
+  
+    - name: install python-openssl
+      apt:
+        name: python-openssl
+        state: present
+  
+    - name: install python-simplejson
+      apt:
+        name: python-simplejson
+        state: present
+  
+    - name: install python-setuptools
+      apt:
+        name: python-setuptools
+        state: present
+  
+    - name: install intltool
+      apt:
+        name: intltool
+        state: present
+  
+    - name: install python-xdg
+      apt:
+        name: python-xdg
+        state: present
+  
+    - name: install python-chardet
+      apt:
+        name: python-chardet
+        state: present
+  
+    - name: install geoip-database
+      apt:
+        name: geoip-database
+        state: present
+  
+    - name: install python-notify
+      apt:
+        name: python-notify
+        state: present
+  
+    - name: install python-pygame
+      apt:
+        name: python-pygame
+        state: present
+  
+    - name: install python-glade2
+      apt:
+        name: python-glade2
+        state: present
+  
+    - name: install librsvg2-common
+      apt:
+        name: librsvg2-common
+        state: present
+  
+    - name: install xdg-utils
+      apt:
+        name: xdg-utils
+        state: present
+  
+    - name: install python-mako
+      apt:
+        name: python-mako
+        state: present
+
+    - name: install python-libtorrent
+      apt:
+        name: python-libtorrent
+        state: present
+
+    - name: copy deluge tar
+      copy:
+        src: files/deluge-1.3.11.tar.bz2
+        dest: /tmp/
+    
+    - name: Create  temp dir
+      file: path=/tmp/deluge state=directory
+      tags: debug
+      
+    - name: untar deluge
+      unarchive:
+        remote_src: true
+        src: /tmp/deluge-1.3.11.tar.bz2
+        dest: /tmp/deluge/
+    
+    - name: copy install
+      copy:
+        src: files/install.sh
+        dest: /tmp/install.sh
+        mode: 0755
+
+
+    - name: install deluge
+      command: /tmp/install.sh
+    
+
+    - name: copy VPN service
+      copy:
+        src: files/myvpn.service
+        dest: /etc/systemd/system/myvpn.service
+        mode: 0644
+      tags: vpn
+
+    - name: copy pem file
+      copy:
+        src: files/crl.rsa.4096.pem
+        dest: /etc/openvpn/crl.rsa.4096.pem
+        mode: 0644
+      tags: vpn
+
+    - name: copy crt file
+      copy:
+        src: files/ca.rsa.4096.crt
+        dest: /etc/openvpn/ca.rsa.4096.crt
+        mode: 0644
+      tags: vpn
+
+    - name: copy VPN config
+      copy:
+        src: files/Netherlands.ovpn
+        dest: /etc/openvpn/Netherlands.ovpn
+        mode: 0644
+      tags: vpn
+
+    - name: copy VPN script
+      copy:
+        src: files/myvpn
+        dest: /usr/bin/myvpn
+        mode: 0755
+      tags: vpn
+
+
+
+
+    - name: pass.txt template
+      template:
+        src: files/pass.j2
+        dest: /etc/openvpn/pass.txt
+        mode: 0600
+      tags: vpn
+
+    - name: enable myvpn service
+      service:
+        name: myvpn
+        enabled: yes
+        state: started
+      tags: vpn
+

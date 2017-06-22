@@ -1,0 +1,2 @@
+#!/bin/bash
+openvpn --cd /etc/openvpn --daemon --config Netherlands.ovpn
